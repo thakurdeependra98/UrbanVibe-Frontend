@@ -1,17 +1,18 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import ProductCard from "./ProductCard";
+import { productsItem } from "../../store/reducers/productSlice";
 
 const ProductSection = () => {
+  const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 8;
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortOrder, setSortOrder] = useState("");
 
   const products = useSelector((state) => state.products.products);
   const { query } = useSelector((state) => state.search);
 
-  // ✅ Step 1: Filter Products (Category & Search Query)
   const filteredProducts = products
     .filter((product) =>
       selectedCategory === "all" ? true : product.category === selectedCategory
@@ -22,23 +23,24 @@ const ProductSection = () => {
         : true
     );
 
-  // ✅ Step 2: Sort Products
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOrder === "lowToHigh") return a.price - b.price;
     if (sortOrder === "highToLow") return b.price - a.price;
     return 0;
   });
 
-  // ✅ Step 3: Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  
+  useEffect(()=>{
+      dispatch(productsItem());
+  },[])
 
   return (
     <>
-      {/* 🔹 Category & Sorting Section */}
       <div className="w-screen flex items-center justify-between bg-white py-[1vh] px-[6vw] mt-[5vh]">
         <div className="flex gap-[5vw] font-normal text-red-700">
           {["all", "men", "women", "kids"].map((category) => (
@@ -49,7 +51,7 @@ const ProductSection = () => {
               }`}
               onClick={() => {
                 setSelectedCategory(category);
-                setCurrentPage(1); // Reset to page 1 on category change
+                setCurrentPage(1);
               }}
             >
               {category.toUpperCase()}
@@ -69,7 +71,6 @@ const ProductSection = () => {
         </div>
       </div>
 
-      {/* 🔹 Product Grid */}
       <div className="my-10 grid grid-cols-4 gap-10 px-20">
         {currentProducts.length > 0 ? (
           currentProducts.map((item) => (
@@ -90,7 +91,6 @@ const ProductSection = () => {
         )}
       </div>
 
-      {/* 🔹 Pagination Controls */}
       <div className="flex justify-center my-16 space-x-4 ">
         <button
           onClick={() => setCurrentPage(currentPage - 1)}

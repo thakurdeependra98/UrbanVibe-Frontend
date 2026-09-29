@@ -17,9 +17,8 @@ const SearchBar = () => {
       placeholder="Search products..."
       value={query}
       onChange={(e) => handleSearch(e.target.value)}
-      className="w-[30vw] bg-white px-5 py-2 outline-0 rounded-full"
+      className="w-[16vw] bg-white px-5 py-2 outline-0 rounded-full"
     />
-    // <input className='w-[30vw] bg-white px-5 py-2 outline-0 rounded-full' type = "search"  placeholder='Search for products and more'/>
   );
 };
 

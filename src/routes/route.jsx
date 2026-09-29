@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Home from '../componets/Home'
+import Home from '../pages/Home'
 import Cart from '../componets/Cart'
 import Wishlist from '../componets/Wishlist'
 import Account from '../componets/Profile'
-import SignUpPage from '../componets/Signup'
-import LoginPage from '../componets/Login'
+import LoginPage from '../pages/Login'
 import Header from '../componets/Header'
 import Buyer from '../componets/users/Buyer'
 import Seller from '../componets/users/Seller'
@@ -34,7 +33,6 @@ const route = () => {
           <Route path='/seller'element = {<PrivateRoute role = "seller"><Seller/></PrivateRoute>} ></Route>
           <Route path='/admin'element = {<PrivateRoute role = "admin"><Admin/></PrivateRoute>} ></Route>
           <Route path='/login'element = {<LoginPage/>} ></Route>
-          <Route path='/signup'element = {<SignUpPage/>} ></Route>
           <Route path="/checkout" element={<PrivateRoute><Checkout/></PrivateRoute>} />
         </Routes>
       </BrowserRouter>

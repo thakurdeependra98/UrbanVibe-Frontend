@@ -1,41 +1,50 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FaHeart } from "react-icons/fa";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
-import { 
-  addToCart, 
-  addWishlist, 
-  removeWishlist 
-} from "../../store/reducers/productSlice";
+import { addToCart, addToWishlist, getWishlist, getCartItems, removeWishlist, deleteProduct, } from '../../store/reducers/productSlice';
 
 
-const ProductCard = ({product, title, description, images, price, oldPrice}) => {
-
-  const wishlist = useSelector((state) => state.products.wishlist);
-
+const ProductCard = ({product, title, description, images, price, oldPrice, handleEdit, handleDelete}) => {
   
-  const isWishlisted = wishlist.some((item) => item._id === product._id);
-
-
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const wishlist = useSelector((state) => state.products.wishlist);
+  const isWishlisted = wishlist.some((item) => item.productId && item.productId._id === product._id);
+  const { user } = useSelector((state) => state.auth);
+  const isSeller = user && user.role === "seller";
+  const isSellerPage = window.location.pathname === "/seller";
 
-  const handleAddToCart = () => {
-    dispatch(addToCart(product)); // Add product to cart
-    // navigate("/cart"); // Redirect to Cart Page
+const showDeleteBtn = isSeller && isSellerPage;
+  
+  useEffect(() => {
+     dispatch(getWishlist());
+     dispatch(getCartItems());
+  }, [dispatch]);
+
+
+  const handleAddToCart = async () => {
+    await dispatch(addToCart({ productId: product._id, quantity: 1 }));
+    console.log(`Added to cart: ${product.title}`);
+    dispatch(getCartItems());
   };
   
+  const handlerDelete = async() =>{
+    await dispatch(deleteProduct(product._id));
+    console.log(`Deleted product: ${product.title}`);
+    handleDelete(product._id); 
+  }
 
-  const handlerWishlist = () => {
+  const handlerWishlist = async () => {
     if (isWishlisted) {
-      dispatch(removeWishlist(product._id)); // Remove from wishlist
+      await dispatch(removeWishlist(product._id));
       console.log(`Removed from wishlist: ${product.title}`);
     } else {
-      dispatch(addWishlist(product)); // Add to wishlist    
+      await dispatch(addToWishlist(product._id));
       console.log(`Added to wishlist: ${product.title}`);
     }
+    dispatch(getWishlist());
   };
 
 
@@ -51,10 +60,15 @@ const ProductCard = ({product, title, description, images, price, oldPrice}) => 
           <h3 className='text-[1vw]'>$ {price}</h3>
           <h3 className='line-through text-zinc-500 text-[1vw]'>$ {oldPrice}</h3>
         </div>
-        <div className='flex justify-between items-center mt-4'>
+        {!showDeleteBtn ? (<div className='flex justify-between items-center mt-4'>
           <button onClick={handleAddToCart} className='bg-blue-700 rounded text-white py-1 px-3'>Add to cart</button>
           <h2 onClick={handlerWishlist}>{isWishlisted ? (<FaHeart className='fill-red-500'/>) : (<IoIosHeartEmpty />)}</h2>
-        </div>
+        </div>): (
+          <div className='flex justify-between items-center mt-4'>
+            <button onClick={handlerDelete} className='bg-red-700 rounded text-white py-1 px-3'>Delete</button>
+            <button onClick={()=> handleEdit(product)} className='bg-slate-500 rounded text-white py-1 px-3'>Edit </button>
+          </div>
+        )}
       </div>
     </div>
   )

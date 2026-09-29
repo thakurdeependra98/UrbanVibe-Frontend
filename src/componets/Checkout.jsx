@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { clearCart } from "../store/reducers/productSlice";
+// import { clearCart } from "../store/reducers/productSlice";
 import { useDispatch } from "react-redux";
 
 const Checkout = () => {
