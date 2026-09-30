@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import google from '../assests/google.png'
 import Hero from '../assests/Hero 2.jpg'
-import { loginUser, loginWithGoogle } from '../store/reducers/authSlice';
+// import { loginUser, loginWithGoogle } from '../store/reducers/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const LoginPage = () => {
@@ -85,7 +85,7 @@ const LoginPage = () => {
         <div className='flex items-center px-7 py-12 sm:px-14 lg:px-16'>
           <div className='w-full max-w-md'>
             <p className='mb-5 text-sm font-semibold uppercase tracking-[0.28em] text-red-500'>
-              {isSignup ? 'Join UrbanVib' : 'Welcome back'}
+              {isSignup ? 'Join UrbanVibe' : 'Welcome back'}
             </p>
             <h2 className='text-4xl font-semibold tracking-tight text-zinc-950'>
               {isSignup ? 'Create your account' : 'Sign in to your account'}

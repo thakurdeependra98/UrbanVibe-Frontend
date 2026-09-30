@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getWishlist, removeWishlist} from "../store/reducers/productSlice";
+// import { getWishlist, removeWishlist} from "../store/reducers/productSlice";
 
 const Wishlist = () => {
   const wishlistItems = useSelector((state) => state.products.wishlist);

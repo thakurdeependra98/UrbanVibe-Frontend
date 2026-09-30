@@ -5,7 +5,7 @@ import { Routes } from 'react-router-dom'
 
 const App = () => {
   return (
-    <div className='bg-[#F4F3F0] overflow-hidden'>
+    <div className='bg-primary overflow-hidden'>
       <Route/>
       
     </div>

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { IoMdHeartEmpty } from "react-icons/io";
 import { AiOutlineDelete } from "react-icons/ai";
-import { increaseQuantity, decreaseQuantity, getCartItems, deleteCartItem, addToWishlist } from "../store/reducers/productSlice";
+// import { increaseQuantity, decreaseQuantity, getCartItems, deleteCartItem, addToWishlist } from "../store/reducers/productSlice";
 
 
 const Cart = () => {

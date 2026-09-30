@@ -1,51 +1,47 @@
-import React, { useEffect } from 'react'
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FaHeart } from "react-icons/fa";
 import { IoIosHeartEmpty } from "react-icons/io";
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { addToCart, addToWishlist, getWishlist, getCartItems, removeWishlist, deleteProduct, } from '../../store/reducers/productSlice';
+import {
+  addToCart,
+  addToWishlist,
+  deleteProduct,
+  getWishlist,
+  removeFromWishlist,
+} from "../../services/Product/product";
 
 
-const ProductCard = ({product, title, description, images, price, oldPrice, handleEdit, handleDelete}) => {
-  
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const wishlist = useSelector((state) => state.products.wishlist);
-  const isWishlisted = wishlist.some((item) => item.productId && item.productId._id === product._id);
-  const { user } = useSelector((state) => state.auth);
-  const isSeller = user && user.role === "seller";
-  const isSellerPage = window.location.pathname === "/seller";
+const ProductCard = ({ product, title, description, images, price, oldPrice, handleEdit, handleDelete }) => {
+  const queryClient = useQueryClient();
+  const { data: wishlist = [] } = useQuery({
+    queryKey: ["wishlist"],
+    queryFn: getWishlist,
+  });
+  const isWishlisted = wishlist.some(
+    (item) => item.productId && item.productId._id === product._id,
+  );
+  const cartMutation = useMutation({
+    mutationFn: addToCart,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["cart"] }),
+  });
+  const wishlistMutation = useMutation({
+    mutationFn: isWishlisted ? removeFromWishlist : addToWishlist,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["wishlist"] }),
+  });
+  const deleteMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      handleDelete?.(product._id);
+    },
+  });
 
-const showDeleteBtn = isSeller && isSellerPage;
-  
-  useEffect(() => {
-     dispatch(getWishlist());
-     dispatch(getCartItems());
-  }, [dispatch]);
-
-
-  const handleAddToCart = async () => {
-    await dispatch(addToCart({ productId: product._id, quantity: 1 }));
-    console.log(`Added to cart: ${product.title}`);
-    dispatch(getCartItems());
-  };
-  
-  const handlerDelete = async() =>{
-    await dispatch(deleteProduct(product._id));
-    console.log(`Deleted product: ${product.title}`);
-    handleDelete(product._id); 
-  }
-
-  const handlerWishlist = async () => {
-    if (isWishlisted) {
-      await dispatch(removeWishlist(product._id));
-      console.log(`Removed from wishlist: ${product.title}`);
-    } else {
-      await dispatch(addToWishlist(product._id));
-      console.log(`Added to wishlist: ${product.title}`);
-    }
-    dispatch(getWishlist());
-  };
+  const showDeleteBtn = Boolean(
+    handleEdit && handleDelete && window.location.pathname === "/seller",
+  );
+  const handleAddToCart = () =>
+    cartMutation.mutate({ productId: product._id, quantity: 1 });
+  const handlerDelete = () => deleteMutation.mutate(product._id);
+  const handlerWishlist = () => wishlistMutation.mutate(product._id);
 
 
   return (
@@ -61,11 +57,11 @@ const showDeleteBtn = isSeller && isSellerPage;
           <h3 className='line-through text-zinc-500 text-[1vw]'>$ {oldPrice}</h3>
         </div>
         {!showDeleteBtn ? (<div className='flex justify-between items-center mt-4'>
-          <button onClick={handleAddToCart} className='bg-blue-700 rounded text-white py-1 px-3'>Add to cart</button>
-          <h2 onClick={handlerWishlist}>{isWishlisted ? (<FaHeart className='fill-red-500'/>) : (<IoIosHeartEmpty />)}</h2>
+          <button onClick={handleAddToCart} disabled={cartMutation.isPending} className='bg-blue-700 rounded text-white py-1 px-3 disabled:opacity-50'>Add to cart</button>
+          <button type='button' onClick={handlerWishlist} disabled={wishlistMutation.isPending} aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}>{isWishlisted ? (<FaHeart className='fill-red-500'/>) : (<IoIosHeartEmpty />)}</button>
         </div>): (
           <div className='flex justify-between items-center mt-4'>
-            <button onClick={handlerDelete} className='bg-red-700 rounded text-white py-1 px-3'>Delete</button>
+            <button onClick={handlerDelete} disabled={deleteMutation.isPending} className='bg-red-700 rounded text-white py-1 px-3 disabled:opacity-50'>Delete</button>
             <button onClick={()=> handleEdit(product)} className='bg-slate-500 rounded text-white py-1 px-3'>Edit </button>
           </div>
         )}

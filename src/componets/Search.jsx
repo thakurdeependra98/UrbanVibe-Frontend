@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setQuery} from "../store/reducers/SearchSlice";
+// import { setQuery} from "../store/reducers/SearchSlice";
 
 const SearchBar = () => {
   const dispatch = useDispatch();
@@ -17,7 +17,7 @@ const SearchBar = () => {
       placeholder="Search products..."
       value={query}
       onChange={(e) => handleSearch(e.target.value)}
-      className="w-[16vw] bg-white px-5 py-2 outline-0 rounded-full"
+      className="w-[20vw] px-5 py-2 outline-0 rounded-full border border-border"
     />
   );
 };

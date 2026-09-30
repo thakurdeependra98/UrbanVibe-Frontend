@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUsers } from "../../store/reducers/authSlice";
-import { productsItem } from "../../store/reducers/productSlice";
+// import { getAllUsers } from "../../store/reducers/authSlice";
+// import { productsItem } from "../../store/reducers/productSlice";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();

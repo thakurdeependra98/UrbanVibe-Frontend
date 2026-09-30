@@ -5,12 +5,13 @@ import Cart from '../componets/Cart'
 import Wishlist from '../componets/Wishlist'
 import Account from '../componets/Profile'
 import LoginPage from '../pages/Login'
-import Header from '../componets/Header'
+// import Header from '../componets/Header'
 import Buyer from '../componets/users/Buyer'
 import Seller from '../componets/users/Seller'
 import Admin from '../componets/users/Admin'
 import PrivateRoute from './PrivateRoutes'
 import Checkout from '../componets/Checkout'
+import Products from '../pages/Products'
 
 const route = () => {
 
@@ -23,9 +24,10 @@ const route = () => {
   return (
     <>
       <BrowserRouter>
-        <Header isAuth = {isAuth} logoutHandler = {logoutHandler}/>
+        {/* <Header isAuth = {isAuth} logoutHandler = {logoutHandler}/> */}
         <Routes>
           <Route path='/'element = {<Home/>} ></Route>
+          <Route path='/products/:category'element = {<Products/>} ></Route>
           <Route path='/cart'element = {<PrivateRoute><Cart/></PrivateRoute>} ></Route>
           <Route path='/wishlist'element = {<PrivateRoute><Wishlist/></PrivateRoute>} ></Route>
           <Route path='/account'element = {<Account/>} ></Route>
