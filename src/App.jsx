@@ -1,14 +1,14 @@
 import React from 'react'
 import Route from './routes/route'
-import SetPassword from './componets/SetPassword'
-import { Routes } from 'react-router-dom'
+import { ToastProvider } from './componets/common/Toast'
 
 const App = () => {
   return (
-    <div className='bg-primary overflow-hidden'>
-      <Route/>
-      
-    </div>
+    <ToastProvider>
+      <div className='bg-primary overflow-hidden'>
+        <Route/>
+      </div>
+    </ToastProvider>
   )
 }
 

@@ -11,33 +11,29 @@ import {
 import Hero from "../assests/Hero Page Image.jpg";
 import HeroTwo from "../assests/Hero 2.jpg";
 import { useGetProducts } from "../hooks/products/useQueries";
+import { useGetCategories } from "../hooks/Category/useQueries";
 
 const brands = ["NIKE", "adidas", "PUMA", "Apple", "SAMSUNG"];
 
-const getCategoryName = (category) => {
-  if (typeof category === "string") return category;
-  return category?.name || category?.slug || "Curated edit";
-};
-
 const ProductTile = ({ product, index }) => (
-  <Link to="/buyer" className="group block min-w-[220px] flex-1">
+  <Link
+    to={product?._id ? `/product/${product._id}` : "/products/all"}
+    className="group block min-w-[220px] flex-1"
+  >
     <div className="relative aspect-[4/5] overflow-hidden bg-[#f0eeeb]">
       <img
         src={product?.image || (index % 2 ? HeroTwo : Hero)}
-        alt={product?.title || "UrbanVibe product"}
+        alt={product?.name || "UrbanVibe product"}
         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
-      <span className="absolute left-3 top-3 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em]">
-        {index % 2 ? "Trending" : "New in"}
-      </span>
     </div>
     <div className="flex items-start justify-between gap-3 pt-4">
       <div>
         <h3 className="font-display text-base font-semibold">
-          {product?.title || "Featured essential"}
+          {product?.name || "Featured essential"}
         </h3>
-        <p className="mt-1 text-xs uppercase tracking-[0.12em] text-[#77736c]">
-          {getCategoryName(product?.category)}
+        <p className="mt-1 text-sm tracking-[0.05rem]">
+          {(product?.description || "UrbanVibe")}
         </p>
       </div>
       <span className="whitespace-nowrap text-sm font-semibold">
@@ -54,7 +50,7 @@ const SectionHeading = ({ eyebrow, title, link = "View all" }) => (
       <h2 className="section-title">{title}</h2>
     </div>
     <Link
-      to="/buyer"
+      to="/products/all"
       className="hidden items-center gap-2 border-b border-[#1b1c1b] pb-1 text-xs font-bold uppercase tracking-[0.16em] sm:flex"
     >
       {link} <FaArrowRight />
@@ -65,24 +61,12 @@ const SectionHeading = ({ eyebrow, title, link = "View all" }) => (
 const Home = () => {
   const { data } = useGetProducts("all");
   const products = Array.isArray(data) ? data : data?.products || [];
-  const Categories = products.filter((product, index, self) => {
-    const categoryId = product.category?._id || product.category_id || product.category;
-    return (
-      index === self.findIndex(
-        (item) => (item.category?._id || item.category_id || item.category) === categoryId,
-      )
-    );
-  });
-
-  console.log("Categories:", Categories);
-  console.log("Products:", products);
-
-  const productRails = [
-    products.slice(0, 4),
-    products.slice(4, 8),
-    products.slice(8, 12),
-  ];
-  const fallbackProducts = [{}, {}, {}, {}];
+  const bestSellingProducts = products.filter((product) => product.isBestSeller).slice(0, 4);
+  const todaysDeals = products.filter((product) => product.isTodayDeal).slice(0, 4);
+  const newArrivals = products.filter((product) => product.isNewArrival).slice(8, 12);
+  const { data: CategoriesData } = useGetCategories("categories");
+  const categories = Array.isArray(CategoriesData) ? CategoriesData : CategoriesData?.categories || [];
+  const categoryData = categories.slice(0, 6); // Get the first 6 categories for display
 
   return (
     <main className="home-page">
@@ -132,20 +116,20 @@ const Home = () => {
           title="Shop by category"
         />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {Categories.map((category) => (
+          {categoryData.map((category) => (
             <Link
-              to={`/products/${getCategoryName(category.category).toLowerCase()}`}
-              key={category.category?._id || category.category_id || getCategoryName(category.category)}
-              className={`group category-tile relative overflow-hidden bg-cover bg-center text-white`}
+              to={`/products/${(category.slug)}`}
+              key={category._id || (category.name)}
+              className={`group category-tile relative overflow-hidden bg-cover bg-center text-white rounded`}
               style={{
-                backgroundImage: `url("${category?.image?.[0]?.url || HeroTwo}")`,
+                backgroundImage: `url("${category?.image || HeroTwo}")`,
               }}
             >
               <span className="absolute inset-0 bg-black/25 transition duration-300 group-hover:bg-black/10" />
               <span className="relative z-10 flex h-full flex-col">
-                <span className="font-display text-2xl capitalize">{getCategoryName(category.category)}</span>
+                <span className="font-display text-2xl capitalize">{(category.name)}</span>
                 <span className="mt-2 text-[10px] uppercase tracking-[0.15em] opacity-85">
-                  {category.title}
+                  {category.description || "Explore our curated selection of products."}
                 </span>
                 <FaArrowRight className="mt-auto text-xs" />
               </span>
@@ -155,15 +139,16 @@ const Home = () => {
       </section>
 
       <section className="home-section ">
-        <SectionHeading eyebrow="Seen around town" title="Trending products" />
-        <div className="flex gap-5 overflow-x-auto pb-2 lg:gap-6">
-          {(productRails[0].length ? productRails[0] : fallbackProducts).map(
+        <SectionHeading eyebrow="Seen around town" title="Best sellers" />
+        <div className="grid grid-cols-4 gap-5 overflow-x-auto pb-2 lg:gap-6">
+          {bestSellingProducts.map(
             (product, index) => (
-              <ProductTile
-                key={product._id || `trend-${index}`}
-                product={product}
-                index={index}
-              />
+              <div key={product._id || `trend-${index}`}>
+                <ProductTile
+                  product={product}
+                  index={index}
+                />
+              </div>
             ),
           )}
         </div>
@@ -176,7 +161,7 @@ const Home = () => {
           link="Shop deals"
         />
         <div className="flex gap-5 overflow-x-auto pb-2 lg:gap-6">
-          {(productRails[1].length ? productRails[1] : fallbackProducts).map(
+          {todaysDeals.map(
             (product, index) => (
               <ProductTile
                 key={product._id || `deal-${index}`}
@@ -205,7 +190,7 @@ const Home = () => {
       <section className="home-section">
         <SectionHeading eyebrow="Just landed" title="New arrivals" />
         <div className="flex gap-5 overflow-x-auto pb-2 lg:gap-6">
-          {(productRails[2].length ? productRails[2] : fallbackProducts).map(
+          {newArrivals.map(
             (product, index) => (
               <ProductTile
                 key={product._id || `new-${index}`}

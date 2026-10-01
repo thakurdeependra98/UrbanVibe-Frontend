@@ -3,32 +3,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { IoMdHeartEmpty } from "react-icons/io";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useGetCartItems } from '../hooks/products/useQueries';
 // import { increaseQuantity, decreaseQuantity, getCartItems, deleteCartItem, addToWishlist } from "../store/reducers/productSlice";
 
 
 const Cart = () => {
-  const dispatch = useDispatch();
-  const cartItems = useSelector((state)=> state.products.cart)
-  const navigate = useNavigate()
-  
-  useEffect(() => {
-    dispatch(getCartItems())
-  }, [dispatch]);
-
-  const handleRemoveFromCart = async (cartItemId) => {
-    await dispatch(deleteCartItem(cartItemId));
-    dispatch(getCartItems());
-  };
-
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.productId.price * item.quantity, 0);
-  
-  const handlerIncreaseQnty = async (cartItemId) => {
-    await dispatch(increaseQuantity(cartItemId)); 
-  };
-
-  const handlerDecreaseQnty = async (cartItemId) => {
-    await dispatch(decreaseQuantity(cartItemId));
-  };
+  const { data, isLoading, isError } = useGetCartItems();
+  const cartItems = Array.isArray(data) ? data : data?.cartItems || [];
+  const navigate = useNavigate();
 
   const shopNow = () =>{
     navigate("/")
@@ -36,6 +18,14 @@ const Cart = () => {
   const handleCheckout = () => {
     navigate("/checkout");
   };
+
+  if (isLoading) {
+    return <p className="text-center text-gray-500 mt-20">Loading cart items...</p>;
+  }
+
+  if (isError) {
+    return <p className="text-center text-red-500 mt-20">Unable to load cart items.</p>;
+  }
 
   return (
     <>
@@ -98,7 +88,7 @@ const Cart = () => {
                 </div>
                 <div className='flex justify-between my-[2vh]'>
                   <h3 className='text-[1.5vw]'>Payable Amount : </h3>
-                  <h3>$ {totalPrice.toFixed(2)}</h3>
+                  {/* <h3>$ {totalPrice.toFixed(2)}</h3> */}
                 </div>
                 <button onClick={handleCheckout} className='w-full text-[1.2vw] bg-blue-700 px-4 py-1 text-white rounded'>Checkout</button>
               </div>

@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React,{ useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import google from '../assests/google.png'
 import Hero from '../assests/Hero 2.jpg'
-// import { loginUser, loginWithGoogle } from '../store/reducers/authSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, registerUser, saveAuthSession } from '../services/auth';
+import { useToast } from '../componets/common/Toast';
 
 const LoginPage = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(false);
   const [signupError, setSignupError] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const {
     register,
@@ -20,32 +21,42 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm();
 
-  const { user, isAuthenticated, error, loading } = useSelector((state) => state.auth);
-
   const handlerLogin = async (data) => {
+    setLoading(true);
+    setLoginError('');
     try {
-      await dispatch(loginUser(data));
+      const response = await loginUser(data);
+      const user = saveAuthSession(response);
+      const role = user?.role || 'buyer';
+      showToast('Login successful.', 'success');
+      navigate(role === 'admin' ? '/admin' : role === 'seller' ? '/seller' : '/');
     } catch (err) {
-      console.error(err.response?.data?.message || err.message);
+      const message = err.response?.data?.message || 'Login failed. Please check your details.';
+      setLoginError(message);
+      showToast(message, 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleLogin = async() => {
-    await window.open("http://localhost:4000/api/auth/google", "_self");
-    dispatch(loginWithGoogle());
+    window.open("http://localhost:4000/api/auth/google", "_self");
   };
 
   const handlerSignup = async (data) => {
+    setLoading(true);
+    setSignupError('');
     try {
-      const response = await axios.post('http://localhost:4000/api/register', data);
-
-      if (response.status === 201) {
-        reset();
-        setSignupError('');
-        setIsSignup(false);
-      }
+      await registerUser(data);
+      reset();
+      setIsSignup(false);
+      showToast('Account created. You can now sign in.', 'success');
     } catch (signupRequestError) {
-      setSignupError(signupRequestError.response?.data?.message || 'Registration failed. Please try again.');
+      const message = signupRequestError.response?.data?.message || 'Registration failed. Please try again.';
+      setSignupError(message);
+      showToast(message, 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,17 +69,8 @@ const LoginPage = () => {
     handlerLogin(data);
   };
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === "buyer") navigate("/buyer");
-      else if (user.role === "seller") navigate("/seller");
-      else if (user.role === "admin") navigate("/admin");
-      else navigate("/");
-    }
-  }, [isAuthenticated, user, navigate]);
-
   return (
-    <main className='min-h-[calc(100vh-8.5rem)] bg-[#f7f5f1] px-5 sm:px-10 lg:px-16'>
+    <main className='min-h-[calc(100vh-5.2rem)] px-5 sm:px-10 lg:px-16 flex justify-center items-center'>
       <div className='mx-auto grid min-h-[calc(100vh-20rem)] max-w-7xl overflow-hidden bg-white shadow-[0_20px_60px_rgba(26,20,15,0.12)] lg:grid-cols-[1.05fr_0.95fr]'>
         <div className='relative hidden min-h-[100px] bg-cover bg-center lg:block' style={{ backgroundImage: `url("${Hero}")` }}>
           <div className='absolute inset-0 bg-black/10' />
@@ -95,7 +97,7 @@ const LoginPage = () => {
                 ? 'Build a wardrobe that feels unmistakably yours.'
                 : 'Continue exploring considered pieces made for every season.'}
             </p>
-            {(error && !isSignup) && <p className='mt-5 text-sm text-red-600'>{error}</p>}
+            {(loginError && !isSignup) && <p className='mt-5 text-sm text-red-600'>{loginError}</p>}
             {signupError && isSignup && <p className='mt-5 text-sm text-red-600'>{signupError}</p>}
 
             <form

@@ -1,23 +1,32 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-// import { setQuery} from "../store/reducers/SearchSlice";
+import React,{ useEffect, useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 
-const SearchBar = () => {
-  const dispatch = useDispatch();
-  const {query}=useSelector(state=>state.search)
-  // const products = useSelector((state) => state.products.products);
+const SearchBar = ({ value = "", onChange, onSearch, placeholder = "Search products..." }) => {
+  const [inputValue, setInputValue] = useState(value);
+  const debouncedValue = useDebounce(inputValue);
 
-  const handleSearch = (query) => {
-    dispatch(setQuery(query)); // Update search term in Redux
-  }
-  
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    onSearch?.(debouncedValue);
+  }, [debouncedValue, onSearch]);
+
+  const handleChange = (event) => {
+    const nextValue = event.target.value;
+    setInputValue(nextValue);
+    onChange?.(nextValue);
+  };
+
   return (
     <input
-      type="text"
-      placeholder="Search products..."
-      value={query}
-      onChange={(e) => handleSearch(e.target.value)}
-      className="w-[20vw] px-5 py-2 outline-0 rounded-full border border-border"
+      type="search"
+      value={inputValue}
+      onChange={handleChange}
+      placeholder={placeholder}
+      aria-label={placeholder}
+      className="w-full rounded-full border border-border px-5 py-2 outline-none focus:border-[#bb4d32] sm:w-[20vw]"
     />
   );
 };

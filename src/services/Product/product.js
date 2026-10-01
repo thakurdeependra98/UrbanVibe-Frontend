@@ -1,8 +1,13 @@
 import api from "../../config/api";
 
 export const getProducts = async (params) => {
-  const endpoint = params && params !== "all" ? `/products/${params}` : "/products";
-  const { data } = await api.get(endpoint);
+  const query = params && params !== "all" ? { category: params } : undefined;
+  const { data } = await api.get("/products", { params: query });
+  return data;
+};
+
+export const getProductDetails = async (productId) => {
+  const { data } = await api.get(`/products/${productId}`);
   return data;
 };
 

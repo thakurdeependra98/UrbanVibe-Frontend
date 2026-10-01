@@ -1,9 +1,11 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { getAuthSession } from "../services/auth";
 
 const PrivateRoute = ({ role, children }) => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const session = getAuthSession();
+  const user = session?.user;
+  const isAuthenticated = Boolean(session);
 
   if (!isAuthenticated) {
     return <Navigate to="/" />;
