@@ -1,57 +1,49 @@
-import React, { useEffect, useState } from 'react'
-import logo from '../assests/logo.png'
-import { Link, useNavigate } from 'react-router-dom'
-import { logout } from "../store/reducers/authSlice";
-import { useDispatch, useSelector } from 'react-redux'
-import SearchBar from './Search';
+import React from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { IoMdHeart } from "react-icons/io";
+import { IoCart } from "react-icons/io5";
+import { FaUser } from "react-icons/fa6";
+import logo from "../assests/UrbanVibe Logo.png";
+import SearchBar from "./Search";
+import { clearAuthSession, getAuthSession } from "../services/auth";
 
 const Header = () => {
-  // const [search, setSearch] = useState("");
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { cart, wishlist } = useSelector((state) => state.products);
-  
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  useLocation();
+  const session = getAuthSession();
+  const user = session?.user;
 
   const handleLogout = () => {
-    dispatch(logout());
+    clearAuthSession();
     navigate("/login");
   };
 
   return (
-    <>
-      <nav className='w-full flex items-center justify-between px-10 absolute'>
-        <Link to="/"><img className='h-[10vw]' src={logo} alt="" /></Link>
-        <div>
-          <SearchBar/>
-        </div>
-        <div className='flex gap-8 mr-20 items-center'>
-          {user && user.role === "buyer" ? (
-            <div className='flex gap-8'>
-              <Link to= "/cart"><h4 className='flex items-center gap-2 text-[1.2vw] font-normal hover:text-[#4f4f4f] relative'>Cart {cart.length > 0 && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute -top-4 -right-4">
-                      {cart.length}
-                    </span>
-                  )} </h4></Link>
-              <Link to ='/wishlist' ><h4 className='flex items-center gap-2 text-[1.2vw] font-normal hover:text-[#4f4f4f] relative'>Wishlist {wishlist.length > 0 && (
-                    <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full absolute -top-4 -right-4">
-                      {wishlist.length}
-                    </span>
-                  )} </h4></Link>
-            </div>
-        ): !user ? (
-          <div className='flex gap-8'>
-        <Link to= "/cart"><h4 className='flex items-center gap-2 text-[1.2vw] font-normal hover:text-[#4f4f4f]'>Cart </h4></Link>
-        <Link to ='/wishlist' ><h4 className='flex items-center gap-2 text-[1.2vw] font-normal hover:text-[#4f4f4f]'>Wishlist </h4></Link>
-        </div>
-      ):
-        ('')}
-          {!isAuthenticated ? (<Link to= "/login"><h4 className='flex items-center gap-2 text-[1.2vw] font-normal hover:text-[#ebebeb] bg-blue-700 px-3 py-1 rounded text-white'>Login</h4></Link> ): (<Link to= "/"><h4 onClick={handleLogout} className='flex items-center gap-2 text-[1.2vw] text-white font-normal hover:text-[#f1f1f1] bg-red-600 px-3 py-1 rounded'>Logout</h4></Link>)}
-        </div>
-      </nav>
-    </>
-  )
-}
+    <nav className="flex w-full items-center justify-between border-b border-[#d8d3cb] bg-white px-6 py-2 sm:px-12 lg:px-20">
+      <Link to="/">
+        <img className="h-10 w-auto object-contain sm:h-16" src={logo} alt="UrbanVibe" />
+      </Link>
+      <SearchBar />
+      <div className="flex items-center gap-4 sm:gap-6">
+      <div>
+        {user && <span className="text-sm font-medium text-secondary">Hello, {user.username}</span>}
+      </div>
+        <Link to="/wishlist" className="text-xl hover:text-[#bb4d32]" aria-label="Wishlist"><IoMdHeart /></Link>
+        <Link to="/cart" className="text-xl hover:text-[#bb4d32]" aria-label="Cart"><IoCart /></Link>
+        {user ? (
+          <button type="button" onClick={handleLogout} className="flex items-center gap-2 text-sm hover:text-[#bb4d32]">
+            <FaUser />
+            {/* <span className="hidden sm:inline">Logout</span> */}
+          </button>
+        ) : (
+          <Link to="/login" className="flex items-center gap-2 text-sm hover:text-[#bb4d32]">
+            <FaUser />
+            <span className="hidden sm:inline">Sign in</span>
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
+};
 
-export default Header
+export default Header;

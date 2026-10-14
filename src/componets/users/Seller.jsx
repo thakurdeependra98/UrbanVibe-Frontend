@@ -3,8 +3,7 @@ import ProductAdd from '../product/ProductAdd'
 
 const Seller = () => {
   return (
-    <div className='w-screen h-screen  overflow-auto'>
-      {/* <h1 className='text-[3vw]'>welcome Seller </h1> */}
+    <div className='w-screen overflow-auto'>
       <ProductAdd/>
     </div>
   )
