@@ -1,9 +1,9 @@
 import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { useGetWishlist } from "../hooks/products/useQueries";
-import { removeFromWishlist } from "../services/Product/product";
 import { useToast } from "../componets/common/Toast";
+import { useRemoveFromWishlist } from "../hooks/Wishlist/useMutation";
+import { useGetWishlist } from "../hooks/Wishlist/useQueries";
 
 const Wishlist = () => {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ const Wishlist = () => {
   const { data, isLoading, isError } = useGetWishlist();
   const wishlistItems = Array.isArray(data) ? data : data?.wishlist || [];
   const removeMutation = useMutation({
-    mutationFn: removeFromWishlist,
+    mutationFn: useRemoveFromWishlist,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
       showToast("Removed from your wishlist.", "success");

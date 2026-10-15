@@ -10,21 +10,16 @@ export const loginUser = async (credentials) => {
   return data;
 }
 
-export const saveAuthSession = (response) => {
-  const payload = response?.data || response;
-  const user = payload?.user || payload?.data?.user || payload;
-  const token = payload?.token || payload?.accessToken || payload?.data?.token;
+export const getProfile = async () => {
+  const { data } = await api.get("/profile");
+  return data;
+}
 
-  localStorage.setItem("urbanvibe-user", JSON.stringify(user));
-  if (token) localStorage.setItem("urbanvibe-token", token);
-
-  return user;
-};
 
 export const getAuthSession = () => {
   try {
-    const user = JSON.parse(localStorage.getItem("urbanvibe-user"));
-    const token = localStorage.getItem("urbanvibe-token");
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("isLoggedIn");
     return user ? { user, token } : null;
   } catch {
     return null;
@@ -32,6 +27,6 @@ export const getAuthSession = () => {
 };
 
 export const clearAuthSession = () => {
-  localStorage.removeItem("urbanvibe-user");
-  localStorage.removeItem("urbanvibe-token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("isLoggedIn");
 };

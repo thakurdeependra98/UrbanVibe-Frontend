@@ -12,19 +12,28 @@ import Hero from "../assests/Hero Page Image.jpg";
 import HeroTwo from "../assests/Hero 2.jpg";
 import { useGetProducts } from "../hooks/products/useQueries";
 import { useGetCategories } from "../hooks/Category/useQueries";
+import Loader from "../componets/common/Loader";
+import { useGetProfile } from "../hooks/User/useQueries";
+import Button from "../componets/common/Button";
+import { backendOrigin } from "../config/api";
 
 const brands = ["NIKE", "adidas", "PUMA", "Apple", "SAMSUNG"];
 
 const ProductTile = ({ product, index }) => (
   <Link
-    to={product?._id ? `/product/${product._id}` : "/products/all"}
+    to={product?._id ? `/products/product/${product._id}` : "/products/all"}
     className="group block min-w-[220px] flex-1"
   >
     <div className="relative aspect-[4/5] overflow-hidden bg-[#f0eeeb]">
       <img
-        src={product?.image || (index % 2 ? HeroTwo : Hero)}
+        src={
+          product?.image?.startsWith("http")
+            ? product.image
+            : `${backendOrigin}${product?.image || "/default-product.jpg"}`
+        }
         alt={product?.name || "UrbanVibe product"}
         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        loading="lazy"
       />
     </div>
     <div className="flex items-start justify-between gap-3 pt-4">
@@ -59,7 +68,7 @@ const SectionHeading = ({ eyebrow, title, link = "View all" }) => (
 );
 
 const Home = () => {
-  const { data } = useGetProducts("all");
+  const { data, isLoading, isError } = useGetProducts("all");
   const products = Array.isArray(data) ? data : data?.products || [];
   const bestSellingProducts = products.filter((product) => product.isBestSeller).slice(0, 4);
   const todaysDeals = products.filter((product) => product.isTodayDeal).slice(0, 4);
@@ -67,6 +76,10 @@ const Home = () => {
   const { data: CategoriesData } = useGetCategories("categories");
   const categories = Array.isArray(CategoriesData) ? CategoriesData : CategoriesData?.categories || [];
   const categoryData = categories.slice(0, 6); // Get the first 6 categories for display
+
+  if(isLoading ) {
+    return <Loader />;
+  }
 
   return (
     <main className="home-page">
@@ -81,25 +94,25 @@ const Home = () => {
         />
         <div className="relative flex min-h-[560px] items-end p-8 sm:p-14 lg:min-h-[692px] lg:p-20">
           <div className="max-w-xl">
-            <p className="mb-6 text-sm font-semibold uppercase tracking-[0.28em] text-red-500">
+            <p className="mb-6 text-sm font-semibold uppercase tracking-[0.28em] text-secondary">
               Summer collection
             </p>
-            <h1 className="max-w-lg text-5xl font-semibold leading-[1.08] tracking-tight text-zinc-950 sm:text-6xl lg:text-6xl">
+            <h1 className="max-w-lg text-5xl font-semibold leading-[1.08] tracking-tight text-primary sm:text-6xl lg:text-6xl">
               Fall - Winter Collections 2027
             </h1>
-            <p className="mt-8 max-w-lg text-base leading-5 text-slate-700 sm:text-lg">
+            <p className="mt-8 max-w-lg text-base leading-5 text-primary sm:text-lg">
               A specialist label creating luxury essentials. Ethically crafted
               with an unwavering commitment to exceptional quality.
             </p>
-            <button
+            <Button
               type="button"
-              className="mt-10 inline-flex items-center gap-4 bg-black px-8 py-5 text-sm font-semibold uppercase tracking-[0.24em] text-white transition-colors hover:bg-secondary"
+              onClick={() => window.location.href = "/products/all"}
             >
               Shop now
               <span aria-hidden="true" className="text-xl leading-none">
                 &rarr;
               </span>
-            </button>
+            </Button>
           </div>
         </div>
         <div className="absolute bottom-5 right-12 hidden text-right text-xs uppercase tracking-[0.16em] text-[#4e4a43] sm:block">
@@ -160,7 +173,7 @@ const Home = () => {
           title="Today's deals"
           link="Shop deals"
         />
-        <div className="flex gap-5 overflow-x-auto pb-2 lg:gap-6">
+        <div className="grid grid-cols-4 gap-5 overflow-x-auto pb-2 lg:gap-6">
           {todaysDeals.map(
             (product, index) => (
               <ProductTile
@@ -205,10 +218,10 @@ const Home = () => {
       <section className="grid border-y border-[#d8d3cb] bg-[#dfe5df] sm:grid-cols-2">
         <div className="p-8 sm:p-12 lg:p-20">
           <p className="eyebrow">The UrbanVibe promise</p>
-          <h2 className="font-display mt-4 max-w-md text-4xl font-semibold leading-none">
+          <h2 className="font-display mt-4 max-w-md text-4xl font-semibold leading-none text-primary">
             Little details. Better days.
           </h2>
-          <p className="mt-6 max-w-md text-sm leading-6 text-[#53594f]">
+          <p className="mt-6 max-w-md text-sm leading-6 text-primary">
             We make shopping feel human, from the first click to the moment your
             order arrives.
           </p>
@@ -232,8 +245,8 @@ const Home = () => {
       </section>
 
       <section className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-28">
-        <div className="text-xl tracking-[0.35em] text-[#bb4d32]">★★★★★</div>
-        <blockquote className="font-display mt-6 text-3xl font-semibold leading-tight sm:text-4xl">
+        <div className="text-xl tracking-[0.35em] text-secondary">★★★★★</div>
+        <blockquote className="font-display mt-6 text-3xl font-semibold leading-tight sm:text-4xl text-primary">
           “The kind of online shop that makes you want to refresh your wardrobe
           and your whole outlook.”
         </blockquote>

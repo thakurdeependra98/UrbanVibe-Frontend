@@ -1,16 +1,26 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IoMdHeartEmpty } from "react-icons/io";
 import { AiOutlineDelete } from "react-icons/ai";
-import { useGetCartItems } from '../hooks/products/useQueries';
-// import { increaseQuantity, decreaseQuantity, getCartItems, deleteCartItem, addToWishlist } from "../store/reducers/productSlice";
-
+import { useGetCartItems } from '../hooks/Cart/useQueries';
+import { useRemoveFromCart } from '../hooks/Cart/useMutation';
+import { useToast } from '../componets/common/Toast';
 
 const Cart = () => {
+  const { showToast } = useToast();
   const { data, isLoading, isError } = useGetCartItems();
   const cartItems = Array.isArray(data) ? data : data?.cartItems || [];
   const navigate = useNavigate();
+  const removeCart = useRemoveFromCart();
+
+  const handleRemoveFromCart = (productId) => {
+    try{
+      removeCart.mutate(productId);
+      showToast("Item removed from cart", "success");
+    }catch(error){
+      showToast(error.message, "error");
+    }
+  }
 
   const shopNow = () =>{
     navigate("/")

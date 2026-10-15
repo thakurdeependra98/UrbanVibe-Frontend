@@ -3,14 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaHeart } from "react-icons/fa";
 import { IoIosHeartEmpty } from "react-icons/io";
-import { useGetWishlist } from "../../hooks/products/useQueries";
-import {
-  useAddToWishlist,
-  useRemoveFromWishlist,
-  useAddtoCart,
-} from "../../hooks/products/useMutation";
 import { deleteProduct } from "../../services/Product/product";
 import { useToast } from "../common/Toast";
+import { useAddtoCart } from "../../hooks/Cart/useMutation";
+import { useAddToWishlist, useRemoveFromWishlist } from "../../hooks/Wishlist/useMutation";
+import { useGetWishlist } from "../../hooks/Wishlist/useQueries";
 
 const ProductCard = ({
   product,
@@ -53,13 +50,13 @@ const ProductCard = ({
       else addWishlistMutation.mutate(product._id);
       showToast(isWishlisted ? "Removed from your wishlist." : "Added to your wishlist.", isWishlisted ? "success" : "info");
     }catch(error){
-      showToast(error.message, "error");
+      showToast(error.msg, "error");
     }
   };
   const wishlistPending =
     addWishlistMutation.isPending || removeWishlistMutation.isPending;
   const openDetails = () =>
-    navigate(`/product/${product._id}`, { state: { product } });
+    navigate(`/products/product/${product._id}`, { state: { product } });
 
   return (
     <div

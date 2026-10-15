@@ -3,6 +3,7 @@ import { useGetCategories } from "../hooks/Category/useQueries";
 import { Link, useParams } from "react-router-dom";
 import { useGetProducts } from "../hooks/products/useQueries";
 import ProductCard from "../componets/product/ProductCard";
+import { backendOrigin } from "../config/api";
 
 const Products = () => {
   const { category } = useParams();
@@ -21,7 +22,7 @@ const Products = () => {
   const activeCategory = category?.toLowerCase() || "";
 
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen py-4">
       <div className="flex flex-wrap gap-8 px-[6vw] py-4">
         {categoryData.map((categoryItem) => {
           const isActive = categoryItem.slug?.toLowerCase() === activeCategory;
@@ -54,7 +55,11 @@ const Products = () => {
                 product={item}
                 title={item.name}
                 description={item.description}
-                images={item.image}
+                images={
+                  item.image?.startsWith("http")
+                    ? item.image
+                    : `${backendOrigin}${item?.image || "/default-product.jpg"}`
+                }
                 price={item.discountPrice ?? item.price}
                 oldPrice={
                   item.discountPrice < item.price ? item.price : undefined

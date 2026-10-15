@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @theme {
-  --color-primary: #F4F3F0;
+  --color-primary: #1B365D;
+  --color-background: #F4F3F0;
   --color-secondary: #e11d48;
   --color-accent: #F2DFDB;
   --color-muted: #6b7280;
@@ -40,9 +41,10 @@ body {
 .section-title {
   font-size: 1.5rem;
   font-weight: 500;
-  letter-spacing: 0.1rem;
+  letter-spacing: 0.05rem;
   line-height: 1;
   margin: 0.7rem 0 0;
+  color: #1B365D;
   text-transform:uppercase;
 }
 

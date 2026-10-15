@@ -1,32 +1,14 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addToCart, addToWishlist, removeFromWishlist } from "../../services/Product/product";
+import { createProduct } from "../../services/Product/product";
 
-export const useAddToWishlist = () => {
+export const useCreateProduct = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: addToWishlist,
+    mutationFn: createProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
-}
-
-export const useRemoveFromWishlist = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: removeFromWishlist,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
-    },
-  });
-}
-
-export const useAddtoCart = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: addToCart,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-  });
-}
+};

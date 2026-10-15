@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import google from '../assests/google.png'
 import Hero from '../assests/Hero 2.jpg'
-import { loginUser, registerUser, saveAuthSession } from '../services/auth';
+import { loginUser, registerUser } from '../services/auth';
 import { useToast } from '../componets/common/Toast';
+import Button from '../componets/common/Button';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -26,7 +27,12 @@ const LoginPage = () => {
     setLoginError('');
     try {
       const response = await loginUser(data);
-      const user = saveAuthSession(response);
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response?.user)
+      );
+      localStorage.setItem("isLoggedIn", "true");
+      const user = response?.user || response?.data?.user || response;
       const role = user?.role || 'buyer';
       showToast('Login successful.', 'success');
       navigate(role === 'admin' ? '/admin' : role === 'seller' ? '/seller' : '/');
@@ -89,10 +95,10 @@ const LoginPage = () => {
             <p className='mb-5 text-sm font-semibold uppercase tracking-[0.28em] text-red-500'>
               {isSignup ? 'Join UrbanVibe' : 'Welcome back'}
             </p>
-            <h2 className='text-4xl font-semibold tracking-tight text-zinc-950'>
+            <h2 className='text-4xl font-semibold tracking-tight text-primary'>
               {isSignup ? 'Create your account' : 'Sign in to your account'}
             </h2>
-            <p className='mt-4 text-base leading-4 text-slate-600'>
+            <p className='mt-4 text-base leading-4 text-primary'>
               {isSignup
                 ? 'Build a wardrobe that feels unmistakably yours.'
                 : 'Continue exploring considered pieces made for every season.'}
@@ -106,7 +112,7 @@ const LoginPage = () => {
             >
               {isSignup && (
                 <>
-                  <label className='text-sm font-medium text-zinc-700'>
+                  <label className='text-sm font-medium text-primary'>
                     Username
                     <input
                       className='w-full border-b border-zinc-300 bg-transparent px-0 py-3 text-black outline-none transition-colors placeholder:text-zinc-400 focus:border-red-500'
@@ -117,10 +123,10 @@ const LoginPage = () => {
                     {errors.username && <p className='mt-1 text-sm text-red-500'>{errors.username.message}</p>}
                   </label>
 
-                  <label className='text-sm font-medium text-zinc-700'>
+                  <label className='text-sm font-medium text-primary'>
                     Account type
                     <select
-                      className='w-full border-b border-zinc-300 bg-transparent px-0 py-3 text-zinc-700 outline-none transition-colors focus:border-red-500'
+                      className='w-full border-b border-zinc-300 bg-transparent px-0 py-3 text-primary outline-none transition-colors focus:border-red-500'
                       {...register('role', { required: 'Please select a role' })}
                     >
                       <option value=''>Select account type</option>
@@ -132,7 +138,7 @@ const LoginPage = () => {
                 </>
               )}
 
-              <label className='text-sm font-medium text-zinc-700'>
+              <label className='text-sm font-medium text-primary'>
                 Email address
                 <input
                   className='w-full border-b border-zinc-300 bg-transparent px-0 py-3 text-black outline-none transition-colors placeholder:text-zinc-400 focus:border-red-500'
@@ -143,7 +149,7 @@ const LoginPage = () => {
                 {errors.email && <p className='mt-1 text-sm text-red-500'>{errors.email.message}</p>}
               </label>
 
-              <label className='text-sm font-medium text-zinc-700'>
+              <label className='text-sm font-medium text-primary'>
                 Password
                 <input
                   className='w-full border-b border-zinc-300 bg-transparent px-0 py-3 text-black outline-none transition-colors placeholder:text-zinc-400 focus:border-red-500'
@@ -154,20 +160,19 @@ const LoginPage = () => {
                 {errors.password && <p className='mt-1 text-sm text-red-500'>{errors.password.message}</p>}
               </label>
 
-              <button
+              <Button
                 type='submit'
-                className='mt-3 w-full bg-black py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-zinc-400'
                 disabled={loading}
               >
                 {isSignup ? 'Create account' : loading ? 'Logging in...' : 'Log in'}
-              </button>
+              </Button>
             </form>
 
             {!isSignup && (
               <button
                 type='button'
                 onClick={handleGoogleLogin}
-                className='mt-4 flex w-full items-center justify-center gap-3 border border-zinc-300 py-3 text-sm font-medium text-zinc-700 transition-colors hover:border-black hover:text-black'
+                className='mt-4 flex w-full items-center justify-center gap-3 border border-zinc-300 py-3 text-sm font-medium text-primary transition-colors hover:border-black hover:text-black'
               >
                 <img src={google} alt='' className='h-5 w-5' />
                 Continue with Google
